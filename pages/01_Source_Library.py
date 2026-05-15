@@ -13,7 +13,7 @@ from utils.sources_data import (
     GAMMA_SOURCES,
     CATEGORY_LABELS,
     CATEGORY_ORDER,
-    get_sources_by_category,
+    SOURCE_BY_ID,
     get_half_life_display,
 )
 from utils.endf_loader import endf_file_exists, show_endf_status
@@ -106,11 +106,6 @@ with st.sidebar:
 
     # ── Filter ──
     st.markdown(t("p01_filter"))
-    selected_category = st.selectbox(
-        t("p01_category"),
-        options=["All"] + CATEGORY_ORDER,
-        format_func=lambda x: t("p01_all_categories") if x == "All" else CATEGORY_LABELS.get(x, x),
-    )
     show_legacy     = st.checkbox(t("p01_show_legacy"),     value=True)
     show_safeguards = st.checkbox(t("p01_show_safeguards"), value=True)
 
@@ -274,36 +269,62 @@ def _render_source_card(source: dict):
                 if ref:
                     st.caption(f"Reference: {ref}")
 
-    st.markdown("---")
 
 
-# ── Filter sources ────────────────────────────────────────────────────────────
-if selected_category == "All":
-    sources_to_show = ALL_SOURCES
-else:
-    sources_to_show = get_sources_by_category(selected_category)
+# ── Build visible source list ─────────────────────────────────────────────────
+visible_sources = [
+    s for s in ALL_SOURCES
+    if (show_legacy     or not s.get("legacy_warning"))
+    and (show_safeguards or not s.get("safeguards"))
+]
 
-if not show_legacy:
-    sources_to_show = [s for s in sources_to_show if not s.get("legacy_warning")]
-if not show_safeguards:
-    sources_to_show = [s for s in sources_to_show if not s.get("safeguards")]
-
-
-# ── Render by category ────────────────────────────────────────────────────────
-if not sources_to_show:
+if not visible_sources:
     st.info(t("p01_no_source"))
-else:
+    st.stop()
+
+# ── Initialise selected source ────────────────────────────────────────────────
+visible_ids = {s["id"] for s in visible_sources}
+if (
+    "selected_source_id" not in st.session_state
+    or st.session_state["selected_source_id"] not in visible_ids
+):
+    st.session_state["selected_source_id"] = visible_sources[0]["id"]
+
+# ── Master-detail layout ──────────────────────────────────────────────────────
+col_list, col_detail = st.columns([1, 2.5], gap="large")
+
+with col_list:
     current_cat = None
-    for source in sources_to_show:
-        cat = source.get("category")
+    for src in visible_sources:
+        cat = src.get("category")
         if cat != current_cat:
             current_cat = cat
             st.markdown(
-                f'<div class="section-label">{CATEGORY_LABELS.get(cat, cat)}</div>',
+                f'<div class="section-label" style="margin-top:10px">'
+                f'{CATEGORY_LABELS.get(cat, cat)}</div>',
                 unsafe_allow_html=True,
             )
-        _render_source_card(source)
+        is_selected = src["id"] == st.session_state["selected_source_id"]
+        badge = ""
+        if src.get("legacy_warning"):
+            badge += " ⚠️"
+        if src.get("safeguards"):
+            badge += " 🔒"
+        if src.get("endf_file") and endf_file_exists(src["endf_file"]):
+            badge += " ✅"
+        if st.button(
+            f'{src["name"]}{badge}',
+            key=f"src_{src['id']}",
+            type="primary" if is_selected else "secondary",
+            use_container_width=True,
+        ):
+            st.session_state["selected_source_id"] = src["id"]
+            st.rerun()
 
+with col_detail:
+    selected = SOURCE_BY_ID.get(st.session_state["selected_source_id"])
+    if selected:
+        _render_source_card(selected)
 
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.caption(t("p01_footer"))
