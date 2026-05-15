@@ -7,6 +7,7 @@ Reaction Explorer — Cross section vs energy จากไฟล์ ENDF/B-VIII.
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+from utils.lang import t, lang_toggle
 from utils.endf_loader import (
     load_endf,
     get_reactions,
@@ -51,6 +52,8 @@ st.markdown("""
 with st.sidebar:
     st.markdown("### ⚛️ Neutron Data Explorer")
     st.divider()
+    lang_toggle()
+    st.divider()
     st.markdown("**Quick Navigation**")
     st.page_link("app.py",                                label="🏠 Home")
     st.page_link("pages/01_Source_Library.py",            label="📚 Source Library")
@@ -63,18 +66,12 @@ with st.sidebar:
 
 # ── Header ────────────────────────────────────────────────────────────────────
 st.title("⚛️ Reaction Explorer")
-st.markdown(
-    "Cross section ของ neutron-induced reactions จากไฟล์ **ENDF/B-VIII.0** "
-    "ผ่าน [endf-userpy](https://github.com/IAEA-NDS/endf-userpy) (IAEA-NDS)"
-)
+st.markdown(t("p02_desc"))
 st.divider()
 
 # ── Check ENDF availability ───────────────────────────────────────────────────
 if not is_endf_available():
-    st.error(
-        "**endf-userpy ไม่พร้อมใช้งาน**\n\n"
-        "รัน `pip install endf-userpy` แล้วรีสตาร์ทแอปค่ะ"
-    )
+    st.error(t("p02_no_endf"))
     st.stop()
 
 # ── Target nucleus selector ───────────────────────────────────────────────────
@@ -85,41 +82,40 @@ available = {
 }
 
 if not available:
-    st.error("ไม่พบไฟล์ ENDF ใน data/ กรุณา upload ไฟล์ก่อนค่ะ")
+    st.error(t("p02_no_files"))
     st.stop()
 
 col_left, col_right = st.columns([1, 2], gap="large")
 
 with col_left:
-    st.markdown("#### เลือก Target Nucleus")
+    st.markdown(t("p02_select_target"))
 
     selected_file = st.selectbox(
         "Target nucleus",
         options=list(available.keys()),
         format_func=lambda f: available[f],
-        help="Nucleus ที่นิวตรอนจะเข้าทำปฏิกิริยาด้วย",
+        help=t("p02_target_help"),
     )
 
     # ── Load ENDF ──
-    with st.spinner(f"กำลังโหลด {available[selected_file]}..."):
+    with st.spinner(t("p02_spinner_load", available[selected_file])):
         endf_dict = load_endf(selected_file)
 
     if endf_dict is None:
-        st.error("ไม่สามารถโหลดไฟล์ ENDF ได้")
+        st.error(t("p02_load_error"))
         st.stop()
 
     # ── Reaction list ──
     reactions = get_reactions(endf_dict)
     if not reactions:
-        st.warning("ไม่พบ reactions ในไฟล์นี้")
+        st.warning(t("p02_no_reactions"))
         st.stop()
 
-    st.success(f"✅ โหลดสำเร็จ — พบ {len(reactions)} reactions")
+    st.success(t("p02_load_success", len(reactions)))
 
     # ── Multi-select reactions ──
-    st.markdown("#### เลือก Reactions")
+    st.markdown(t("p02_select_reactions"))
 
-    # Default: แสดง reactions ที่น่าสนใจก่อน
     default_reactions = [r for r in reactions if r in [
         "(n,total)", "(n,elastic)", "(n,inelastic)",
         "(n,2n)", "(n,gamma)", "(n,p)", "(n,a)",
@@ -131,21 +127,21 @@ with col_left:
         "Reactions",
         options=reactions,
         default=default_reactions[:4],
-        help="เลือกได้หลาย reactions เพื่อเปรียบเทียบกัน",
+        help=t("p02_reactions_help"),
     )
 
-    st.markdown("#### Energy Range")
+    st.markdown(t("p02_energy_range"))
     e_min_MeV = st.number_input(
         "E min (MeV)", min_value=1e-9, max_value=1.0,
         value=1e-5, format="%.2e",
-        help="พลังงานต่ำสุด (thermal neutron ≈ 0.025 eV = 2.5×10⁻⁸ MeV)",
+        help=t("p02_emin_help"),
     )
     e_max_MeV = st.number_input(
         "E max (MeV)", min_value=0.1, max_value=20.0,
         value=20.0, format="%.1f",
-        help="พลังงานสูงสุด (14 MeV = D-T generator, 20 MeV = ENDF limit)",
+        help=t("p02_emax_help"),
     )
-    n_points = st.slider("จำนวน energy points", 100, 1000, 300, 50)
+    n_points = st.slider(t("p02_n_points"), 100, 1000, 300, 50)
 
     # ── Y-axis scale ──
     log_y = st.checkbox("Log scale (Y axis)", value=True)
@@ -154,7 +150,7 @@ with col_left:
 # ── Plot ──────────────────────────────────────────────────────────────────────
 with col_right:
     if not selected_reactions:
-        st.info("เลือก reaction อย่างน้อย 1 ตัวจากแถบซ้ายค่ะ")
+        st.info(t("p02_no_selection"))
         st.stop()
 
     energies_eV = make_log_energy_grid(
@@ -164,7 +160,6 @@ with col_right:
     )
     energies_MeV = eV_to_MeV(energies_eV)
 
-    # ── สีสำหรับแต่ละ reaction ──
     COLORS = [
         "#2563eb", "#dc2626", "#16a34a", "#d97706",
         "#7c3aed", "#0891b2", "#db2777", "#65a30d",
@@ -174,7 +169,7 @@ with col_right:
     xs_data = {}
     error_reactions = []
 
-    with st.spinner("กำลังคำนวณ cross sections..."):
+    with st.spinner(t("p02_calc_spinner")):
         for i, rxn in enumerate(selected_reactions):
             xs = get_cross_section(endf_dict, rxn, energies_eV)
             if xs is None:
@@ -198,7 +193,7 @@ with col_right:
             ))
 
     if error_reactions:
-        st.warning(f"ไม่สามารถคำนวณ: {', '.join(error_reactions)}")
+        st.warning(t("p02_calc_warning", ", ".join(error_reactions)))
 
     # ── Layout ──
     fig.update_layout(
@@ -248,10 +243,9 @@ st.divider()
 
 # ── Data table ────────────────────────────────────────────────────────────────
 if xs_data:
-    with st.expander("📋 ดูตารางข้อมูล (sample points)"):
+    with st.expander(t("p02_table_expander")):
         import pandas as pd
 
-        # sample 20 points
         idx = np.linspace(0, len(energies_MeV) - 1, 20, dtype=int)
         df_data = {"Energy (MeV)": energies_MeV[idx]}
         for rxn, xs in xs_data.items():
@@ -275,22 +269,8 @@ if xs_data:
         )
 
 # ── Reaction reference ────────────────────────────────────────────────────────
-with st.expander("📖 คำอธิบาย Reaction Notation"):
-    st.markdown("""
-| Notation | ความหมาย |
-|----------|-----------|
-| `(n,total)` | Total cross section — ผลรวมทุก reactions |
-| `(n,elastic)` หรือ `(n,n_0)` | Elastic scattering — นิวตรอนกระเด็งออกโดยไม่เปลี่ยน nucleus |
-| `(n,inelastic)` | Inelastic scattering — nucleus ถูก excite |
-| `(n,gamma)` หรือ `(n,g)` | Radiative capture — nucleus ดูดนิวตรอนและปล่อย gamma |
-| `(n,2n)` | นิวตรอนชน → ได้ 2 นิวตรอนออกมา |
-| `(n,p)` | นิวตรอนชน → ได้ proton ออกมา |
-| `(n,a)` | นิวตรอนชน → ได้ alpha particle ออกมา |
-| `(n,f)` | Fission — nucleus แตกออก (เฉพาะ fissile/fissionable nuclei) |
-    """)
+with st.expander(t("p02_notation_expander")):
+    st.markdown(t("p02_notation_table"))
 
 # ── Footer ────────────────────────────────────────────────────────────────────
-st.caption(
-    "**Data source:** ENDF/B-VIII.0 via endf-userpy (IAEA-NDS) · "
-    "**Disclaimer:** Independent tool for educational use — not an official IAEA product."
-)
+st.caption(t("p02_footer"))
