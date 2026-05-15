@@ -1,0 +1,19 @@
+# Neutron Data Explorer — requirements.txt
+# ติดตั้งด้วย: pip install -r requirements.txt
+
+# ── Streamlit ──────────────────────────────────────────────────
+streamlit>=1.35.0
+
+# ── ENDF data parsing ──────────────────────────────────────────
+endf-parserpy>=0.10.0
+endf-userpy>=0.1.0
+
+# ── Numerics ───────────────────────────────────────────────────
+numpy>=1.26.0
+scipy>=1.13.0
+
+# ── Plotting ───────────────────────────────────────────────────
+plotly>=5.22.0
+
+# ── Utilities ──────────────────────────────────────────────────
+pandas>=2.2.0
