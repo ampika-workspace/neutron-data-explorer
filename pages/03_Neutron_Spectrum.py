@@ -8,6 +8,7 @@ Neutron Spectrum — visualise energy spectrum ของ neutron sources
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+from utils.lang import t, lang_toggle
 from utils.endf_loader import (
     load_endf,
     get_emission_spectrum,
@@ -61,6 +62,8 @@ st.markdown("""
 with st.sidebar:
     st.markdown("### ⚛️ Neutron Data Explorer")
     st.divider()
+    lang_toggle()
+    st.divider()
     st.markdown("**Quick Navigation**")
     st.page_link("app.py",                                label="🏠 Home")
     st.page_link("pages/01_Source_Library.py",            label="📚 Source Library")
@@ -74,39 +77,24 @@ with st.sidebar:
 # ── Analytical spectrum models ────────────────────────────────────────────────
 
 def watt_spectrum(E_MeV: np.ndarray, a: float = 1.025, b: float = 2.926) -> np.ndarray:
-    """
-    Watt fission spectrum (normalised)
-    N(E) ∝ sinh(√(b·E)) · exp(-E/a)
-    Default parameters: Cf-252 (ISO 8529-1)
-    """
-    E = np.asarray(E_MeV, dtype=float)
+    E    = np.asarray(E_MeV, dtype=float)
     vals = np.sinh(np.sqrt(b * E)) * np.exp(-E / a)
     vals = np.where(E > 0, vals, 0.0)
-    # normalise so area = 1
     _trapz = np.trapezoid if hasattr(np, "trapezoid") else np.trapz
     return vals / (_trapz(vals, E) + 1e-30)
 
 
 def ambe_spectrum_analytical(E_MeV: np.ndarray) -> np.ndarray:
-    """
-    Am-241/Be analytical approximation (ISO 8529-1 shape)
-    Multi-Gaussian representation of the Am-Be neutron spectrum
-    Peaks at ~3 MeV and ~4.5 MeV (characteristic double-hump)
-    Ref: Geiger & Hargrove (1966); ISO 8529-1
-    """
-    E = np.asarray(E_MeV, dtype=float)
-    # Three Gaussian components representing the Am-Be spectrum shape
+    E  = np.asarray(E_MeV, dtype=float)
     g1 = 0.30 * np.exp(-0.5 * ((E - 3.0) / 1.2) ** 2)
     g2 = 0.45 * np.exp(-0.5 * ((E - 4.5) / 1.5) ** 2)
     g3 = 0.20 * np.exp(-0.5 * ((E - 7.5) / 1.8) ** 2)
-    vals = g1 + g2 + g3
-    vals = np.where(E > 0, vals, 0.0)
+    vals = np.where(E > 0, g1 + g2 + g3, 0.0)
     _trapz = np.trapezoid if hasattr(np, "trapezoid") else np.trapz
     return vals / (_trapz(vals, E) + 1e-30)
 
 
 def cm244_spectrum(E_MeV: np.ndarray) -> np.ndarray:
-    """Watt spectrum for Cm-244 (a=0.906, b=3.848)"""
     return watt_spectrum(E_MeV, a=0.906, b=3.848)
 
 
@@ -149,58 +137,55 @@ SPECTRUM_SOURCES = {
         "label":        "Pu-238/Be",
         "symbol":       "²³⁸Pu/Be",
         "model":        "analytical",
-        "fn":           ambe_spectrum_analytical,   # spectrum shape คล้าย Am-Be มาก
+        "fn":           ambe_spectrum_analytical,
         "color":        "#7c3aed",
         "mean_MeV":     4.5,
         "max_MeV":      11.0,
-        "description":  "Analytical model — spectrum shape คล้าย Am-241/Be (alpha energy ต่างกัน ~10 keV)",
+        "description":  "Analytical model — spectrum shape similar to Am-241/Be (alpha energy differs by ~10 keV)",
         "endf_file":    None,
     },
 }
 
 # ── Header ────────────────────────────────────────────────────────────────────
 st.title("📊 Neutron Spectrum")
-st.markdown(
-    "Energy spectrum ของนิวตรอนจาก neutron sources ต่างๆ "
-    "เปรียบเทียบ spectrum ระหว่าง sources และดูผลกระทบต่อการป้องกันรังสี"
-)
+st.markdown(t("p03_desc"))
 st.divider()
 
 # ── Controls ──────────────────────────────────────────────────────────────────
 col_ctrl, col_plot = st.columns([1, 2.5], gap="large")
 
 with col_ctrl:
-    st.markdown("#### เลือก Sources")
+    st.markdown(t("p03_select_sources"))
     selected_sources = st.multiselect(
-        "Sources ที่ต้องการแสดง",
+        t("p03_sources_label"),
         options=list(SPECTRUM_SOURCES.keys()),
         default=["AmBe", "Cf252"],
         format_func=lambda k: SPECTRUM_SOURCES[k]["label"],
-        help="เลือกได้หลาย sources เพื่อเปรียบเทียบ",
+        help=t("p03_sources_help"),
     )
 
-    st.markdown("#### Energy Range")
+    st.markdown(t("p03_energy_range"))
     e_max = st.slider(
         "E max (MeV)", min_value=5.0, max_value=20.0, value=14.0, step=0.5,
-        help="14 MeV = พลังงานสูงสุดของ D-T generator",
+        help=t("p03_emax_help"),
     )
-    n_pts = st.slider("Resolution", 200, 1000, 500, 100)
+    n_pts = st.slider(t("p03_resolution"), 200, 1000, 500, 100)
 
-    st.markdown("#### Reference Lines")
-    show_thermal  = st.checkbox("Thermal (0.025 eV)", value=False)
-    show_ambe_mean = st.checkbox("Am-Be mean (4.5 MeV)", value=True)
-    show_cf252_mean = st.checkbox("Cf-252 mean (2.13 MeV)", value=True)
-    show_14mev   = st.checkbox("14.1 MeV (D-T generator)", value=False)
+    st.markdown(t("p03_ref_lines"))
+    show_thermal    = st.checkbox("Thermal (0.025 eV)",       value=False)
+    show_ambe_mean  = st.checkbox("Am-Be mean (4.5 MeV)",     value=True)
+    show_cf252_mean = st.checkbox("Cf-252 mean (2.13 MeV)",   value=True)
+    show_14mev      = st.checkbox("14.1 MeV (D-T generator)", value=False)
 
-    st.markdown("#### Display")
-    normalize    = st.checkbox("Normalise (area = 1)", value=True)
-    fill_area    = st.checkbox("Fill area under curve", value=True)
-    log_x        = st.checkbox("Log scale (X axis)", value=False)
+    st.markdown(t("p03_display"))
+    normalize  = st.checkbox(t("p03_normalize"), value=True)
+    fill_area  = st.checkbox(t("p03_fill_area"), value=True)
+    log_x      = st.checkbox(t("p03_log_x"),     value=False)
 
 # ── Plot ──────────────────────────────────────────────────────────────────────
 with col_plot:
     if not selected_sources:
-        st.info("เลือก source อย่างน้อย 1 ตัวจากแถบซ้ายค่ะ")
+        st.info(t("p03_no_source"))
         st.stop()
 
     E_MeV = np.linspace(0.01, e_max, n_pts)
@@ -208,12 +193,11 @@ with col_plot:
     fig = go.Figure()
 
     for sid in selected_sources:
-        src = SPECTRUM_SOURCES[sid]
+        src      = SPECTRUM_SOURCES[sid]
         spectrum = src["fn"](E_MeV)
 
         if not normalize:
-            # scale by mean neutron yield ถ้าไม่ normalise
-            mean_e = src.get("mean_MeV", 1.0)
+            mean_e   = src.get("mean_MeV", 1.0)
             spectrum = spectrum * mean_e
 
         color = src["color"]
@@ -251,14 +235,6 @@ with col_plot:
         ))
 
     # ── Reference lines ──
-    y_max = max(
-        float(np.max(SPECTRUM_SOURCES[sid]["fn"](E_MeV)))
-        for sid in selected_sources
-    ) * 1.15
-
-    if show_thermal and 2.5e-8 >= 0.01:
-        pass  # thermal เล็กเกินไปสำหรับ linear scale
-
     if show_cf252_mean and "Cf252" in selected_sources:
         fig.add_vline(
             x=2.13, line_dash="dash", line_color="#dc2626", line_width=1.2,
@@ -280,11 +256,10 @@ with col_plot:
             annotation_font_size=11,
         )
 
+    y_label = "Normalised Intensity N(E)" if normalize else "Intensity (a.u.)"
+
     fig.update_layout(
-        title=dict(
-            text="Neutron Energy Spectrum",
-            font=dict(size=15),
-        ),
+        title=dict(text="Neutron Energy Spectrum", font=dict(size=15)),
         xaxis=dict(
             title="Neutron Energy (MeV)",
             type="log" if log_x else "linear",
@@ -293,7 +268,7 @@ with col_plot:
             gridcolor="rgba(128,128,128,0.15)",
         ),
         yaxis=dict(
-            title="Normalised Intensity N(E)" if normalize else "Intensity (a.u.)",
+            title=y_label,
             showgrid=True,
             gridcolor="rgba(128,128,128,0.15)",
         ),
@@ -316,7 +291,7 @@ st.divider()
 
 # ── Source info cards ─────────────────────────────────────────────────────────
 if selected_sources:
-    st.markdown("#### สรุปคุณสมบัติ Spectrum")
+    st.markdown(t("p03_summary"))
     cols = st.columns(len(selected_sources))
     for i, sid in enumerate(selected_sources):
         src = SPECTRUM_SOURCES[sid]
@@ -329,64 +304,32 @@ if selected_sources:
                 f'</div>',
                 unsafe_allow_html=True,
             )
-            st.markdown(f"**Mean energy:** {src['mean_MeV']} MeV")
-            st.markdown(f"**Max energy:** {src['max_MeV']} MeV")
+            st.markdown(f'{t("p03_mean_energy")} {src["mean_MeV"]} MeV')
+            st.markdown(f'{t("p03_max_energy")} {src["max_MeV"]} MeV')
             st.caption(src["description"])
 
 st.divider()
 
 # ── Spectrum comparison table ─────────────────────────────────────────────────
-with st.expander("📋 เปรียบเทียบคุณสมบัติ Spectrum"):
+with st.expander(t("p03_compare_expander")):
     import pandas as pd
 
     rows = []
     for sid, src in SPECTRUM_SOURCES.items():
         rows.append({
-            "Source":          src["label"],
-            "Symbol":          src["symbol"],
-            "Spectrum model":  src["model"].capitalize(),
-            "Mean E (MeV)":    src["mean_MeV"],
-            "Max E (MeV)":     src["max_MeV"],
-            "Model":           src["description"],
+            t("p03_col_source"): src["label"],
+            t("p03_col_symbol"): src["symbol"],
+            t("p03_col_model"):  src["model"].capitalize(),
+            t("p03_col_mean_e"): src["mean_MeV"],
+            t("p03_col_max_e"):  src["max_MeV"],
+            t("p03_col_desc"):   src["description"],
         })
     df = pd.DataFrame(rows)
     st.dataframe(df, use_container_width=True, hide_index=True)
 
 # ── Physics notes ─────────────────────────────────────────────────────────────
-with st.expander("📖 Physics Notes — Spectrum Models"):
-    st.markdown("""
-**Watt Fission Spectrum (Cf-252, Cm-244)**
-
-ฟังก์ชันมาตรฐาน ISO 8529-1 สำหรับ spontaneous fission neutron sources:
-
-$$N(E) \\propto \\sinh(\\sqrt{bE}) \\cdot e^{-E/a}$$
-
-| Source | a (MeV) | b (MeV⁻¹) | Mean E |
-|--------|---------|-----------|--------|
-| Cf-252 | 1.025   | 2.926     | 2.13 MeV |
-| Cm-244 | 0.906   | 3.848     | 2.12 MeV |
-
----
-
-**Am-241/Be Analytical Model**
-
-Spectrum ของ Am-Be ไม่สามารถอธิบายด้วยสูตรเดียวได้ เนื่องจากมีหลาย reaction channels ของ
-⁹Be(α,n)¹²C ที่พลังงานต่างกัน
-ผลคือ spectrum มีลักษณะ **double-hump** (สองยอด) ที่ ~3 MeV และ ~4.5 MeV
-
-Model ที่ใช้ในแอปนี้เป็น **multi-Gaussian approximation** ตาม ISO 8529-1 spectrum shape
-
----
-
-**หมายเหตุ:**
-- Pu-238/Be มี spectrum คล้าย Am-241/Be มาก เพราะ alpha energy ต่างกันเพียง ~10 keV
-- สำหรับงาน shielding design ควรใช้ spectrum จาก Monte Carlo simulation (MCNP, PHITS)
-  ร่วมกับข้อมูล ENDF สำหรับความแม่นยำสูงสุด
-    """)
+with st.expander(t("p03_physics_expander")):
+    st.markdown(t("p03_physics_content"))
 
 # ── Footer ────────────────────────────────────────────────────────────────────
-st.caption(
-    "**Data source:** ISO 8529-1:2021 (Watt parameters) · "
-    "Geiger & Hargrove (1966) (Am-Be model) · "
-    "**Disclaimer:** Independent tool for educational use — not an official IAEA product."
-)
+st.caption(t("p03_footer"))
