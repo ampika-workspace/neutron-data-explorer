@@ -221,12 +221,18 @@ with col_plot:
 
         # fill
         if fill_area:
+            if color.startswith("#") and len(color) in (7, 9):
+                r, g, b = int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16)
+                fill_color = f"rgba({r},{g},{b},0.08)"
+            elif color.startswith("rgb("):
+                fill_color = color.replace("rgb(", "rgba(").replace(")", ",0.08)")
+            else:
+                fill_color = color
             fig.add_trace(go.Scatter(
                 x=E_MeV, y=spectrum,
                 mode="none",
                 fill="tozeroy",
-                fillcolor=color.replace(")", ",0.08)").replace("rgb", "rgba") if "rgb" in color
-                          else color + "15",
+                fillcolor=fill_color,
                 showlegend=False,
                 hoverinfo="skip",
             ))
