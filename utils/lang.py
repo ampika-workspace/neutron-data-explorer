@@ -428,10 +428,11 @@ def t(key: str, *args, **kwargs) -> str:
 def lang_toggle() -> None:
     """Render the language radio toggle inside a sidebar context."""
     import streamlit as st
+    st.markdown("**🌐 Select Language**")
     st.radio(
-        "🌐",
+        "Select Language",
         options=["th", "en"],
-        format_func=lambda x: "🇹🇭 ภาษาไทย" if x == "th" else "🇬🇧 English",
+        format_func=lambda x: "ภาษาไทย" if x == "th" else "English",
         horizontal=True,
         key="lang",
         label_visibility="collapsed",
