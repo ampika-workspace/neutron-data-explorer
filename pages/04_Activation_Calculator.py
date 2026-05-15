@@ -9,7 +9,7 @@ import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
 import pandas as pd
-from utils.lang import t, lang_toggle, get_lang
+from utils.lang import t, get_lang
 from utils.endf_loader import (
     load_endf,
     get_activation_xs,
@@ -73,8 +73,6 @@ st.markdown("""
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("### ⚛️ Neutron Data Explorer")
-    st.divider()
-    lang_toggle()
     st.divider()
     st.markdown("**Quick Navigation**")
     st.page_link("app.py",                                label="🏠 Home")
