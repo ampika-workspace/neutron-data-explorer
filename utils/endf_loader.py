@@ -87,7 +87,7 @@ def load_endf(filename: str) -> dict | None:
     # Parse ไฟล์
     filepath = os.path.join(DATA_DIR, filename)
     if not os.path.exists(filepath):
-        st.error(f"ไม่พบไฟล์: {filepath}")
+        st.error(f"File not found: {filepath}")
         return None
 
     try:
@@ -96,7 +96,7 @@ def load_endf(filename: str) -> dict | None:
         st.session_state["endf_cache"][filename] = endf_dict
         return endf_dict
     except Exception as e:
-        st.error(f"ไม่สามารถ parse ไฟล์ {filename}: {e}")
+        st.error(f"Failed to parse {filename}: {e}")
         return None
 
 
@@ -318,13 +318,13 @@ def show_endf_status():
     """
     if not ENDF_AVAILABLE:
         st.sidebar.error(
-            "⚠️ endf-userpy ไม่พร้อมใช้งาน\n\n"
-            "รัน: `pip install endf-userpy`"
+            "⚠️ endf-userpy not available\n\n"
+            "Run: `pip install endf-userpy`"
         )
         return
 
     cached = st.session_state.get("endf_cache", {})
     if cached:
-        st.sidebar.success(f"✅ ENDF loaded: {len(cached)} ไฟล์")
+        st.sidebar.success(f"✅ ENDF loaded: {len(cached)} file(s)")
     else:
-        st.sidebar.info("📂 ยังไม่ได้โหลดไฟล์ ENDF")
+        st.sidebar.info("📂 No ENDF files loaded yet")
