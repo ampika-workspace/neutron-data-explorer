@@ -1,6 +1,5 @@
 import re
 import streamlit as st
-from utils.lang import lang_toggle
 from utils.sources_data import (
     ALPHA_N_SOURCES,
     FISSION_SOURCES,
@@ -118,9 +117,6 @@ with st.sidebar:
     st.markdown("### ⚛️ Neutron Data Explorer")
     st.caption(f"v{APP_VERSION} · Updated {APP_UPDATED}")
     st.divider()
-    lang_toggle()
-    st.divider()
-
     st.markdown("**Quick Navigation**")
     st.page_link("pages/01_Source_Library.py",        label="📚 Source Library")
     st.page_link("pages/02_Reaction_Explorer.py",     label="⚛️ Reaction Explorer")
