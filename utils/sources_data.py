@@ -39,8 +39,8 @@ ALPHA_N_SOURCES = [
         "neutron_yield_n_s_per_GBq": 6.6e4,     # [ISO 8529-1] ~2.2×10⁶ n/s/Ci
 
         # ── Gamma contamination ───────────────────────────────────
-        "gamma_contamination":    "ต่ำ — 59.5 keV จาก Am-241 เท่านั้น",
-        "prompt_gamma_MeV":       4.44,          # จาก ¹²C* de-excitation
+        "gamma_contamination":    "Low — 59.5 keV from Am-241 only",
+        "prompt_gamma_MeV":       4.44,
 
         # ── Practical info ────────────────────────────────────────
         "typical_activity_range": "mCi – Ci",
@@ -56,9 +56,9 @@ ALPHA_N_SOURCES = [
         "legacy_warning":  False,
         "safeguards":      False,
         "notes": (
-            "ISO 8529-1 reference source มาตรฐานสากล "
-            "Spectrum กว้าง peak ที่ ~4–5 MeV "
-            "Gamma contamination ต่ำที่สุดในบรรดา (α,n) sources"
+            "ISO 8529-1 international reference source. "
+            "Broad spectrum with peak at ~4–5 MeV. "
+            "Lowest gamma contamination among (α,n) sources."
         ),
         "reference": "ISO 8529-1:2021; IAEA-TECDOC-465",
     },
@@ -77,7 +77,7 @@ ALPHA_N_SOURCES = [
         "max_neutron_energy_MeV":  11.0,
         "neutron_yield_n_s_per_GBq": 6.4e4,     # ใกล้เคียง Am-Be [Ref 5]
 
-        "gamma_contamination":    "ต่ำมาก — Pu-238 เป็น α emitter เป็นหลัก",
+        "gamma_contamination":    "Very low — Pu-238 is primarily an α emitter",
         "prompt_gamma_MeV":       4.44,
 
         "typical_activity_range": "Ci range",
@@ -91,9 +91,9 @@ ALPHA_N_SOURCES = [
         "legacy_warning": False,
         "safeguards":     True,   # Pu content → IAEA safeguards
         "notes": (
-            "Half-life ยาว (87.7 ปี) เหมาะกับงานระยะยาว "
-            "Spectrum คล้าย Am-241/Be มาก (alpha energy ต่างกันเพียง ~10 keV) "
-            "⚠️ อยู่ภายใต้ IAEA safeguards เนื่องจากมี Pu"
+            "Long half-life (87.7 years) suitable for long-term applications. "
+            "Spectrum very similar to Am-241/Be (alpha energy differs by only ~10 keV). "
+            "⚠️ Subject to IAEA safeguards due to Pu content."
         ),
         "reference": "NuDat 3.0; arXiv:1611.00213",
     },
@@ -112,7 +112,7 @@ ALPHA_N_SOURCES = [
         "max_neutron_energy_MeV":  10.5,         # [Anderson & Bond 1963]
         "neutron_yield_n_s_per_GBq": 5.9e4,     # ~1.6×10⁶ n/s/Ci [arXiv:1806.05255]
 
-        "gamma_contamination":    "ต่ำ",
+        "gamma_contamination":    "Low",
         "prompt_gamma_MeV":       4.44,
 
         "typical_activity_range": "Ci range",
@@ -126,11 +126,11 @@ ALPHA_N_SOURCES = [
         "legacy_warning": True,
         "safeguards":     True,   # fissile material → strict IAEA safeguards
         "notes": (
-            "Half-life ยาวมาก (24,110 ปี) "
-            "Spectrum peaks ที่ ~7 MeV และ ~9 MeV; mean energy 4.24 MeV "
-            "⚠️ LEGACY + SAFEGUARDS: Pu-239 เป็น fissile material "
-            "อยู่ภายใต้ IAEA safeguards อย่างเข้มงวด "
-            "ISO 8529-1 ไม่ครอบคลุม Pu-Be sources"
+            "Very long half-life (24,110 years). "
+            "Spectrum peaks at ~7 MeV and ~9 MeV; mean energy 4.24 MeV. "
+            "⚠️ LEGACY + SAFEGUARDS: Pu-239 is a fissile material "
+            "subject to strict IAEA safeguards. "
+            "ISO 8529-1 does not cover Pu-Be sources."
         ),
         "reference": "Anderson & Bond (1963); arXiv:1806.05255; INIS-IAEA",
     },
@@ -151,12 +151,12 @@ ALPHA_N_SOURCES = [
         # เพราะมี alpha emitters หลายตัวใน decay chain
         "neutron_yield_n_s_per_GBq": 4.0e5,     # ประมาณ (equilibrium) [ionactive.co.uk]
 
-        "gamma_contamination":    "สูงมาก — Bi-214 และ Pb-214 ใน decay chain ปล่อย gamma > 2 MeV",
+        "gamma_contamination":    "Very high — Bi-214 and Pb-214 in decay chain emit gamma > 2 MeV",
         "prompt_gamma_MeV":       4.44,
 
         "typical_activity_range": "mCi – Ci",
         "common_uses": [
-            "Legacy industrial source (ก่อน ค.ศ. 1980)",
+            "Legacy industrial source (pre-1980)",
             "Historical research sources",
         ],
 
@@ -164,11 +164,11 @@ ALPHA_N_SOURCES = [
         "legacy_warning": True,
         "safeguards":     False,
         "notes": (
-            "⚠️ LEGACY SOURCE — ใช้ด้วยความระมัดระวังสูงสุด "
-            "Gamma dose rate สูงมากจาก Ra-226 decay chain "
-            "(Rn-222 → Bi-214, Pb-214 ปล่อย gamma > 2 MeV) "
-            "ไม่มีการผลิตใหม่แล้ว — พบเป็น legacy sources ในสถานที่เก่า "
-            "ต้องการ shielding เพิ่มเติมมากกว่า Am-Be หรือ Pu-Be"
+            "⚠️ LEGACY SOURCE — Use with extreme caution. "
+            "Very high gamma dose rate from Ra-226 decay chain "
+            "(Rn-222 → Bi-214, Pb-214 emit gamma > 2 MeV). "
+            "No longer manufactured — found as legacy sources at old facilities. "
+            "Requires additional shielding compared to Am-Be or Pu-Be."
         ),
         "reference": "Knoll (4th Ed.); ionactive.co.uk neutron calculator",
     },
@@ -198,7 +198,7 @@ FISSION_SOURCES = [
         "watt_a": 1.025,   # MeV (Watt parameter)
         "watt_b": 2.926,   # MeV⁻¹ (Watt parameter)
 
-        "gamma_contamination":    "ปานกลาง",
+        "gamma_contamination":    "Moderate",
         "typical_activity_range": "µg – mg",
         "common_uses": [
             "Neutron calibration (ISO 8529-1 primary reference)",
@@ -211,10 +211,10 @@ FISSION_SOURCES = [
         "legacy_warning": False,
         "safeguards":     True,
         "notes": (
-            "Gold standard สำหรับ spontaneous fission neutron source "
-            "Watt spectrum: N(E) ∝ sinh(√(2E)) · exp(-E/1.025) "
-            "⚠️ Half-life สั้นมาก (2.645 ปี) — activity ลดเร็ว "
-            "ต้องวางแผน procurement timing อย่างรอบคอบ"
+            "Gold standard for spontaneous fission neutron sources. "
+            "Watt spectrum: N(E) ∝ sinh(√(2E)) · exp(-E/1.025). "
+            "⚠️ Very short half-life (2.645 years) — activity decreases rapidly. "
+            "Careful procurement timing required."
         ),
         "reference": "ISO 8529-1:2021; NuDat 3.0",
     },
@@ -236,7 +236,7 @@ FISSION_SOURCES = [
         "watt_a": 0.906,
         "watt_b": 3.848,
 
-        "gamma_contamination":    "ต่ำ",
+        "gamma_contamination":    "Low",
         "typical_activity_range": "mg range",
         "common_uses": [
             "Research neutron source",
@@ -247,9 +247,9 @@ FISSION_SOURCES = [
         "legacy_warning": False,
         "safeguards":     True,
         "notes": (
-            "Half-life ยาวกว่า Cf-252 (18.1 ปี) — เหมาะกับงานระยะยาว "
-            "Neutron yield ต่ำกว่า Cf-252 ต่อ unit mass "
-            "Spectrum คล้าย Cf-252 (Watt distribution)"
+            "Longer half-life than Cf-252 (18.1 years) — suitable for long-term applications. "
+            "Lower neutron yield than Cf-252 per unit mass. "
+            "Spectrum similar to Cf-252 (Watt distribution)."
         ),
         "reference": "NuDat 3.0; Knoll (4th Ed.)",
     },
@@ -282,9 +282,9 @@ GAMMA_SOURCES = [
         "status":         "active",
         "legacy_warning": False,
         "notes": (
-            "Gamma line เดียวที่ 661.7 keV — ideal calibration source "
-            "Half-life ยาว (30.17 ปี) — activity stable ในระยะยาว "
-            "Daughter Ba-137m (t½ = 2.55 min) เป็น gamma emitter จริง"
+            "Single gamma line at 661.7 keV — ideal calibration source. "
+            "Long half-life (30.17 years) — activity stable long-term. "
+            "Daughter Ba-137m (t½ = 2.55 min) is the actual gamma emitter."
         ),
         "reference": "NuDat 3.0; IAEA Safety Reports Series No. 2",
     },
@@ -312,10 +312,10 @@ GAMMA_SOURCES = [
         "status":         "active",
         "legacy_warning": False,
         "notes": (
-            "Two coincident high-energy gammas (1.17 & 1.33 MeV) "
-            "Dose rate constant สูงมาก — ต้องการ shielding หนา "
-            "ผลิตจาก neutron activation: ⁵⁹Co(n,γ)⁶⁰Co "
-            "Activity ลด ~12.5% ต่อปี"
+            "Two coincident high-energy gammas (1.17 & 1.33 MeV). "
+            "Very high dose rate constant — requires heavy shielding. "
+            "Produced by neutron activation: ⁵⁹Co(n,γ)⁶⁰Co. "
+            "Activity decreases ~12.5% per year."
         ),
         "reference": "NuDat 3.0; IAEA Safety Reports Series No. 2",
     },
@@ -341,9 +341,9 @@ GAMMA_SOURCES = [
         "status":         "active",
         "legacy_warning": False,
         "notes": (
-            "Source หลักสำหรับ industrial gamma radiography "
-            "Half-life สั้น (73.83 วัน) — ต้องเปลี่ยน source บ่อย "
-            "Gamma spectrum ซับซ้อน หลาย lines ในช่วง 0.2–0.6 MeV"
+            "Primary source for industrial gamma radiography. "
+            "Short half-life (73.83 days) — requires frequent source replacement. "
+            "Complex gamma spectrum with multiple lines in the 0.2–0.6 MeV range."
         ),
         "reference": "NuDat 3.0; IAEA Safety Reports Series No. 2",
     },
@@ -369,9 +369,9 @@ GAMMA_SOURCES = [
         "status":         "active",
         "legacy_warning": False,
         "notes": (
-            "Energy ต่ำกว่า Ir-192 — เหมาะกับ thin-wall pipeline inspection "
-            "เหล็กหนา 10–40 mm "
-            "Half-life ~120 วัน"
+            "Lower energy than Ir-192 — suitable for thin-wall pipeline inspection "
+            "(steel 10–40 mm thick). "
+            "Half-life ~120 days."
         ),
         "reference": "NuDat 3.0; IAEA Safety Reports Series No. 2",
     },
@@ -390,7 +390,7 @@ GAMMA_SOURCES = [
 
         "typical_activity_range": "Ci range",
         "common_uses": [
-            "Portable radiography (วัสดุ density ต่ำ)",
+            "Portable radiography (low-density materials)",
             "Aluminium และ light alloy inspection",
             "Electronics component inspection",
         ],
@@ -398,9 +398,9 @@ GAMMA_SOURCES = [
         "status":         "active",
         "legacy_warning": False,
         "notes": (
-            "Low-energy gammas — เหมาะกับวัสดุเบาและ thin sections "
-            "Half-life สั้น (32 วัน) — ต้องเปลี่ยน source บ่อยมาก "
-            "ทางเลือกแทน X-ray สำหรับงานภาคสนาม portable"
+            "Low-energy gammas — suitable for light materials and thin sections. "
+            "Short half-life (32 days) — requires very frequent source replacement. "
+            "Alternative to X-ray for portable field work."
         ),
         "reference": "NuDat 3.0; IAEA Safety Reports Series No. 2",
     },
@@ -418,7 +418,7 @@ GAMMA_SOURCES = [
         "gamma_intensity_pct":   [99.99,  99.86],
         "dose_rate_const_uSv_h_per_GBq_1m": 481.0,
 
-        "typical_activity_range": "ผลิต on-site เท่านั้น",
+        "typical_activity_range": "On-site production only",
         "common_uses": [
             "Neutron activation analysis tracer",
             "Flow studies (short-lived tracer)",
@@ -427,10 +427,10 @@ GAMMA_SOURCES = [
         "status":         "active",
         "legacy_warning": False,
         "notes": (
-            "Half-life สั้นมาก (14.96 ชั่วโมง) "
-            "ต้องผลิตใหม่จาก neutron activation: ²³Na(n,γ)²⁴Na "
-            "ไม่มีจำหน่ายเป็น sealed source — ผลิตจาก reactor หรือ neutron generator "
-            "High-energy gammas (1.37 & 2.75 MeV) ต้องการ heavy shielding"
+            "Very short half-life (14.96 hours). "
+            "Must be freshly produced by neutron activation: ²³Na(n,γ)²⁴Na. "
+            "Not available as a sealed source — produced from reactor or neutron generator. "
+            "High-energy gammas (1.37 & 2.75 MeV) require heavy shielding."
         ),
         "reference": "NuDat 3.0",
     },
@@ -472,10 +472,10 @@ def get_half_life_display(source: dict) -> str:
     if source.get("half_life_years"):
         hl = source["half_life_years"]
         if hl >= 1000:
-            return f"{hl:,.0f} ปี"
-        return f"{hl} ปี"
+            return f"{hl:,.0f} years"
+        return f"{hl} years"
     if source.get("half_life_days"):
-        return f"{source['half_life_days']} วัน"
+        return f"{source['half_life_days']} days"
     if source.get("half_life_hours"):
-        return f"{source['half_life_hours']} ชั่วโมง"
+        return f"{source['half_life_hours']} hours"
     return "N/A"
