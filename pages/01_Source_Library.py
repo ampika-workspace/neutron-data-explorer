@@ -292,32 +292,39 @@ if (
 col_list, col_detail = st.columns([1, 2.5], gap="large")
 
 with col_list:
-    current_cat = None
+    from collections import defaultdict
+
+    cat_groups: dict = defaultdict(list)
     for src in visible_sources:
-        cat = src.get("category")
-        if cat != current_cat:
-            current_cat = cat
-            st.markdown(
-                f'<div class="section-label" style="margin-top:10px">'
-                f'{CATEGORY_LABELS.get(cat, cat)}</div>',
-                unsafe_allow_html=True,
-            )
-        is_selected = src["id"] == st.session_state["selected_source_id"]
-        badge = ""
-        if src.get("legacy_warning"):
-            badge += " ⚠️"
-        if src.get("safeguards"):
-            badge += " 🔒"
-        if src.get("endf_file") and endf_file_exists(src["endf_file"]):
-            badge += " ✅"
-        if st.button(
-            f'{src["name"]}{badge}',
-            key=f"src_{src['id']}",
-            type="primary" if is_selected else "secondary",
-            use_container_width=True,
-        ):
-            st.session_state["selected_source_id"] = src["id"]
-            st.rerun()
+        cat_groups[src.get("category", "")].append(src)
+
+    for cat in CATEGORY_ORDER:
+        sources_in_cat = cat_groups.get(cat, [])
+        if not sources_in_cat:
+            continue
+
+        selected_in_cat = any(
+            s["id"] == st.session_state["selected_source_id"]
+            for s in sources_in_cat
+        )
+        with st.expander(CATEGORY_LABELS.get(cat, cat), expanded=selected_in_cat):
+            for src in sources_in_cat:
+                is_selected = src["id"] == st.session_state["selected_source_id"]
+                badge = ""
+                if src.get("legacy_warning"):
+                    badge += " ⚠️"
+                if src.get("safeguards"):
+                    badge += " 🔒"
+                if src.get("endf_file") and endf_file_exists(src["endf_file"]):
+                    badge += " ✅"
+                if st.button(
+                    f'{src["name"]}{badge}',
+                    key=f"src_{src['id']}",
+                    type="primary" if is_selected else "secondary",
+                    use_container_width=True,
+                ):
+                    st.session_state["selected_source_id"] = src["id"]
+                    st.rerun()
 
 with col_detail:
     selected = SOURCE_BY_ID.get(st.session_state["selected_source_id"])
